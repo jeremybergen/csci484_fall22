@@ -1,0 +1,97 @@
+/*
+C Socket Server
+*/
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main(int argc, char **argv) {
+    int serverSocket;
+    int newSocket;
+    int yes = 1;
+    struct sockaddr_in address;
+    struct sockaddr_storage their_addr;
+    struct addrinfo hints, *res;
+    int addrsize = sizeof(struct sockaddr_storage);
+    
+    char *portnum = "1234";
+
+    char buffer[32] = {0};
+    off_t offset = 0;
+    int listenStatus;
+    int bindStatus;
+    int setoptStatus;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    getaddrinfo(NULL, portnum, &hints, &res);
+
+    // address.sin_addr.s_addr = INADDR_ANY;
+    // address.sin_family = AF_INET;
+    // address.sin_port = htons(portnum);
+    // memset(address.sin_zero, '\0', sizeof address.sin_zero);
+
+    // OLD WAY: serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    serverSocket = socket(res->ai_family, res->ai_socktype, 0);
+    setoptStatus = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+    // OLD WAY: bindStatus = bind(serverSocket, (struct sockaddr *) &address, sizeof(address));
+    bindStatus = bind(serverSocket, res->ai_addr, res->ai_addrlen);
+    // OLD WAY: listenStatus = listen(serverSocket, 1);
+    listenStatus = listen(serverSocket, 1);
+    printf("setoptStatus: %d\n", setoptStatus);
+    printf("bindStatus: %d\n", bindStatus);
+    printf("listenStatus: %d\n", listenStatus);
+
+    newSocket = accept(serverSocket, (struct sockaddr *) &their_addr, &addrsize);
+    printf("Accepted new connection\n");
+    
+    while(offset = recv(newSocket, buffer, 32, 0)) {
+        printf("offset: %d\n", offset);
+        printf("recv buffer: %s\n", buffer);
+    }
+    // while(1) {
+
+    // }
+    // // printf("argc: %d\n", argc);
+    // // printf("argv[0]: %s\n", argv[0]);
+    // // printf("argv[1]: %s\n", argv[1]);
+    // int serverSocket;
+    // int yes = 1;
+    // int bindRes;
+    // struct sockaddr_in address;
+    // struct addrinfo hints, *res;
+    // // int serverSocket2;
+
+    // // memset(&hints, 0, sizeof hints);
+    // // hints.ai_family = AF_UNSPEC;
+    // // hints.ai_socktype = SOCK_STREAM;
+    // // hints.ai_flags = AI_PASSIVE;
+    // // getaddrinfo(NULL, "8000", &hints, &res);
+
+    // address.sin_addr.s_addr = INADDR_ANY;
+
+    // serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    // // serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    // // serverSocket2 = socket(AF_INET, SOCK_STREAM, 0);
+    // printf("socket: %d\n", serverSocket);
+    // setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+
+    // // bindRes = bind(serverSocket, (struct sockaddr *) &address, sizeof(address));
+    // bindRes = bind(serverSocket, res->ai_addr, res->ai_addrlen);
+    // printf("bindRes: %d\n", bindRes);
+    // // printf("socket2: %d\n", serverSocket2);
+
+    // while(1) {
+        
+    // }
+
+    return 0;
+}
