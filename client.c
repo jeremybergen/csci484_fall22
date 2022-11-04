@@ -14,6 +14,8 @@ int main(int argc, char **argv) {
     int inetStatus;
 
     char *hello = "Star Trek RULES!!!";
+    char *message = {0};
+    size_t msgLen = 0;
     char recvBuffer[1024] = {0};
 
     servaddr.sin_family = AF_INET;
@@ -23,9 +25,22 @@ int main(int argc, char **argv) {
 
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     connect(clientSocket, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    send(clientSocket, hello, strlen(hello), 0);
-    recv(clientSocket, recvBuffer, 1024, 0);
-    printf("Received from server: %s\n", recvBuffer);
+
+    while(1) {
+        getline(&message, &msgLen, stdin);
+        // printf("our message: %s\n", message);
+        // printf("msgLen: %lu\n", msgLen);
+        // printf("message strlen: %lu\n", strlen(message));
+        char *messageLength;
+        // messageLength = itoa(strlen(message));
+        sprintf(messageLength, "%lu", strlen(message));
+        send(clientSocket, messageLength, strlen(messageLength), 0);
+        send(clientSocket, message, strlen(message), 0);
+        recv(clientSocket, recvBuffer, 1024, 0);
+        printf("Received from server: %s\n", recvBuffer);
+        memset(message, 0, sizeof(message));
+        memset(recvBuffer, 0, sizeof(recvBuffer));
+    }
 
     return 0;
 }

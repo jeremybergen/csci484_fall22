@@ -3,6 +3,7 @@ c socket server
 */
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -11,6 +12,8 @@ c socket server
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#define BUFFSIZE 10
+
 int main(int argc, char **argv) {
     int serverSocket;
     int clientSocket;
@@ -18,8 +21,8 @@ int main(int argc, char **argv) {
     struct addrinfo hints, *res;
     struct sockaddr_storage clientAddr;
     int addrsize = sizeof(struct sockaddr_storage);
-    char buffer[1024] = {0};
-    char sendBuffer[1024] = {0};
+    char buffer[BUFFSIZE] = {0};
+    char sendBuffer[BUFFSIZE] = {0};
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
@@ -36,11 +39,34 @@ int main(int argc, char **argv) {
     while(1) {
         clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, (socklen_t *)&addrsize);
         printf("Accepted new connection from client\n");
-        
-        recv(clientSocket, buffer, 1024, 0);
-        printf("Received: %s\n", buffer);
-        send(clientSocket, buffer, strlen(buffer), 0);
-        memset(buffer, 0, strlen(buffer));
+        int stillConnected = 1;
+        while(stillConnected) {
+            int messageLength;
+            recv(clientSocket, buffer, BUFFSIZE, 0);
+            printf("Message length is: %s\n", buffer);
+            messageLength = atoi(buffer);
+            memset(buffer, 0, strlen(buffer));
+
+            char tmpBuffer[BUFFSIZE];
+            int recvBytes = 0;
+            while(messageLength > 0) {
+                recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0);
+                printf("Received Bytes: %i\n", recvBytes);
+                strcat(buffer, tmpBuffer);
+                messageLength = messageLength - recvBytes;
+            }
+            printf("Received: %s\n", buffer);
+            if(strcmp(buffer, "quit\n") == 0) {
+                char *newBuffer = "Goodbye";
+                send(clientSocket, newBuffer, strlen(newBuffer), 0);
+                memset(buffer, 0, strlen(buffer));
+                stillConnected = 0;
+
+            } else {
+                send(clientSocket, buffer, strlen(buffer), 0);
+                memset(buffer, 0, strlen(buffer));
+            }
+        }
         // strcat(sendBuffer, "Received: ");
         // strcat(sendBuffer, buffer);
         // send(clientSocket, sendBuffer, strlen(sendBuffer), 0);
