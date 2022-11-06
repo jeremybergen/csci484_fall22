@@ -42,18 +42,24 @@ int main(int argc, char **argv) {
         int stillConnected = 1;
         while(stillConnected) {
             int messageLength;
-            recv(clientSocket, buffer, BUFFSIZE, 0);
+            int offset = 0;
+            offset = recv(clientSocket, buffer, BUFFSIZE, 0);
             printf("Message length is: %s\n", buffer);
+            printf("offset: %i\n", offset);
             messageLength = atoi(buffer);
             memset(buffer, 0, strlen(buffer));
 
             char tmpBuffer[BUFFSIZE];
             int recvBytes = 0;
-            while(messageLength > 0) {
-                recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0);
+            // while(messageLength > 0) {
+            while(recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0)) {
+                // recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0);
                 printf("Received Bytes: %i\n", recvBytes);
+                printf("tmpBuffer: %s\n", tmpBuffer);
                 strcat(buffer, tmpBuffer);
                 messageLength = messageLength - recvBytes;
+                printf("messageLength: %i\n", messageLength);
+                memset(tmpBuffer, 0, strlen(tmpBuffer));
             }
             printf("Received: %s\n", buffer);
             if(strcmp(buffer, "quit\n") == 0) {

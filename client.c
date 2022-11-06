@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
         // printf("message strlen: %lu\n", strlen(message));
         char *messageLength;
         // messageLength = itoa(strlen(message));
-        sprintf(messageLength, "%lu", strlen(message));
+        sprintf(messageLength, "%lu\n", strlen(message));
+        printf("messageLength: %li\n", strlen(message));
         send(clientSocket, messageLength, strlen(messageLength), 0);
         send(clientSocket, message, strlen(message), 0);
         recv(clientSocket, recvBuffer, 1024, 0);
