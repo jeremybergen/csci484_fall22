@@ -32,10 +32,13 @@ int main(int argc, char **argv) {
         // printf("msgLen: %lu\n", msgLen);
         // printf("message strlen: %lu\n", strlen(message));
         char *messageLength;
-        // messageLength = itoa(strlen(message));
         sprintf(messageLength, "%lu\n", strlen(message));
         printf("messageLength: %li\n", strlen(message));
         send(clientSocket, messageLength, strlen(messageLength), 0);
+        recv(clientSocket, recvBuffer, 1024, 0);
+        printf("Received from server: %s\n", recvBuffer);
+        memset(recvBuffer, 0, sizeof(recvBuffer));
+
         send(clientSocket, message, strlen(message), 0);
         recv(clientSocket, recvBuffer, 1024, 0);
         printf("Received from server: %s\n", recvBuffer);
