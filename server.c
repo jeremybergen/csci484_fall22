@@ -56,12 +56,13 @@ int main(int argc, char **argv) {
             int recvBytes = 0;
             while(messageLength > 0) {
             // while(recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0)) {
-                recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE, 0);
+                recvBytes = recv(clientSocket, tmpBuffer, BUFFSIZE-1, 0);
                 printf("Received Bytes: %i\n", recvBytes);
                 printf("tmpBuffer: %s\n", tmpBuffer);
-                printf("strlen(tmpBuffer): %ld\n", strlen(tmpBuffer));
                 strcat(buffer, tmpBuffer);
                 printf("DEBUG: buffer: %s\n", buffer);
+                // printf("DEBUG2: &buffer: %p\n", buffer);
+                // printf("DEBUG2: &tmpBuffer: %p\n", tmpBuffer);
                 messageLength = messageLength - recvBytes;
                 printf("messageLength: %i\n", messageLength);
                 memset(tmpBuffer, 0, strlen(tmpBuffer));
